@@ -12,6 +12,9 @@ import (
 	"time"
 )
 
+// The maximum number of appointments to be loaded by the List function.
+const appListLimit int = 100
+
 type Appointment struct {
 	// There's an interesting quirk here: the unix timestamp is always one hour
 	// earlier than the appointment date. This is most likely an implementation
@@ -28,7 +31,7 @@ func (a Appointment) String() string {
 		a.timestamp.Format(layout))
 }
 
-// ListAppointments fetches and parses the last 100 appointments
+// ListAppointments fetches and parses the last appListLimit appointments
 // as seen on the user's "My Account" page.
 func (s *Session) List() ([]Appointment, error) {
 
@@ -49,7 +52,7 @@ func (s *Session) loadApps() ([]byte, error) {
 
 	v := url.Values{}
 	v.Set("start", "0")
-	v.Set("limit", "100")
+	v.Set("limit", strconv.Itoa(appListLimit))
 	v.Set("destinationurl", "apps_pat.php")
 
 	resp, err := (*s).client.PostForm("http://pocapoint.com/pp/_request/index.php", v)
