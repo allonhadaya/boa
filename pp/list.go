@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"time"
 )
 
 // The maximum number of appointments to be loaded by the List function.
@@ -90,8 +91,8 @@ func parseListApp(div xml.Node) (*Appointment, error) {
 
 	return &Appointment{
 		session:      nil,
-		pptimestamp:  timestamp,
-		practitioner: Practitioner(practitioner),
-		status:       Booked,
+		Timestamp:    time.Unix(timestamp, 0),
+		Practitioner: Practitioner(practitioner),
+		Status:       Booked,
 	}, nil
 }

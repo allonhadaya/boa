@@ -49,9 +49,9 @@ func (s *Session) GetBlock(date time.Time, practitioner Practitioner) (Block, er
 
 			result = append(result, Appointment{
 				session:      s,
-				pptimestamp:  timestamp,
-				practitioner: practitioner,
-				status:       status,
+				Timestamp:    time.Unix(timestamp, 0),
+				Practitioner: practitioner,
+				Status:       status,
 				blockIndex:   blockIndex,
 			})
 		}

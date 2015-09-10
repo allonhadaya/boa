@@ -11,13 +11,9 @@ var (
 	appointmentTaken = errors.New("This appointment cannot be booked.")
 )
 
-func (a *Appointment) IsTaken() bool {
-	return a.status == Taken
-}
-
 // Book books
 func (a *Appointment) Book() error {
-	switch a.status {
+	switch a.Status {
 	case Booked:
 		return nil
 	case Taken:
@@ -25,7 +21,7 @@ func (a *Appointment) Book() error {
 	case Available:
 		return a.reallyBook()
 	default:
-		panic(fmt.Errorf("Undefined booking behavior for status: %s", a.status))
+		panic(fmt.Errorf("Undefined booking behavior for status: %s", a.Status))
 	}
 }
 
@@ -37,9 +33,9 @@ func (a *Appointment) reallyBook() error {
 	v.Set("locationid", "25")
 	v.Set("duration", "10")
 	v.Set("doubl", "0")
-	v.Set("pracid", strconv.Itoa(int(a.practitioner)))
+	v.Set("pracid", strconv.Itoa(int(a.Practitioner)))
 	v.Set("pp", "boa")
-	v.Set("ut", strconv.FormatInt(a.pptimestamp, 10))
+	v.Set("ut", strconv.FormatInt(a.Timestamp.Unix(), 10))
 	v.Set("destinationurl", "app.php")
 
 	resp, err := a.session.client.PostForm("http://pocapoint.com/pp/_request/index.php", v)
@@ -50,12 +46,12 @@ func (a *Appointment) reallyBook() error {
 
 	// assume success because the server does not implement meaningful status codes
 
-	a.status = Booked
+	a.Status = Booked
 
 	return nil
 }
 
 func (a *Appointment) makeAppDateFormat() string {
 	const layout = "2006-01-02 15:04:05"
-	return a.RealTimestamp().Format(layout)
+	return a.Timestamp.Format(layout)
 }

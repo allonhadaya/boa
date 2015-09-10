@@ -54,10 +54,10 @@ Options:
 		// TODO: does not really handle the case where an earlier slot frees up
 		for _, desired := range [...]time.Time{timeOnDay(day, "4:40pm"), timeOnDay(day, "4:50pm"), timeOnDay(day, "5:00pm")} {
 			for _, appt := range block {
-				if appt.IsTaken() {
+				if appt.Status == pp.Taken {
 					continue
 				}
-				if appt.RealTimestamp() == desired {
+				if appt.Timestamp == desired {
 					if err := appt.Book(); err != nil {
 						log.Fatalf("Attempted booking (%s) but encountered error: %s", &appt, err)
 					}
