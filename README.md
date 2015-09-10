@@ -1,4 +1,4 @@
-[BOA \(Brooklyn Open Acupuncture\)](brooklynopenacupuncture.com)
+[BOA \(Brooklyn Open Acupuncture\)](http://www.brooklynopenacupuncture.com)
 ---
 
 I like weekly acupuncture.  
