@@ -16,7 +16,7 @@ type Appointment struct {
 func (a *Appointment) String() string {
 	const layout = "on Jan 2 '06 at 3:04 pm"
 	return fmt.Sprintf(
-		"%s meeting with %s %s",
+		"%s appointment with %s %s",
 		a.Status,
 		a.Practitioner,
 		a.Timestamp.Format(layout))

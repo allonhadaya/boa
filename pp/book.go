@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	appointmentTaken = errors.New("This appointment cannot be booked.")
+	appointmentTaken = errors.New("this appointment cannot be booked because it is taken")
 )
 
 // Book books
@@ -43,8 +43,6 @@ func (a *Appointment) reallyBook() error {
 		return err
 	}
 	defer resp.Body.Close()
-
-	// assume success because the server does not implement meaningful status codes
 
 	a.Status = Booked
 

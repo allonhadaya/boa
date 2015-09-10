@@ -31,12 +31,12 @@ Options:
 
 	username := os.Getenv("PP_USERNAME")
 	if username == "" {
-		log.Fatal("Expected username to be defined in the environment variable PP_USERNAME")
+		log.Fatal("expected username to be defined in the environment variable PP_USERNAME")
 	}
 
 	password := os.Getenv("PP_PASSWORD")
 	if password == "" {
-		log.Fatal("Expected password to be defined in the environment variable PP_PASSWORD")
+		log.Fatal("expected password to be defined in the environment variable PP_PASSWORD")
 	}
 
 	session, err := pp.New(username, password)
@@ -51,7 +51,6 @@ Options:
 			log.Fatal(err)
 		}
 
-		// TODO: does not really handle the case where an earlier slot frees up
 		for _, desired := range [...]time.Time{timeOnDay(day, "4:40pm"), timeOnDay(day, "4:50pm"), timeOnDay(day, "5:00pm")} {
 			for _, appt := range block {
 				if appt.Status == pp.Taken {
@@ -59,14 +58,14 @@ Options:
 				}
 				if appt.Timestamp == desired {
 					if err := appt.Book(); err != nil {
-						log.Fatalf("Attempted booking (%s) but encountered error: %s", &appt, err)
+						log.Fatalf("attempted booking (%s) but encountered error: %s", &appt, err)
 					}
 					log.Print(&appt)
 					goto BOOKED
 				}
 			}
 		}
-		log.Printf("Could not book an appointment for %s", day.Format(notFoundLayout))
+		log.Printf("could not book an appointment for %s", day.Format(notFoundLayout))
 	BOOKED:
 	}
 }
@@ -78,8 +77,6 @@ func nextEightMondays() []time.Time {
 	y, m, d := now.Date()
 	daysUntilMonday := int((7 + time.Monday - now.Weekday()) % 7)
 	nextmonday := time.Date(y, m, d+daysUntilMonday, 0, 0, 0, 0, now.Location())
-
-	log.Print(nextmonday)
 
 	// append seven weeks
 	mondays := []time.Time{nextmonday}

@@ -3,6 +3,7 @@ package pp
 import (
 	"fmt"
 	"github.com/moovweb/gokogiri"
+	"github.com/moovweb/gokogiri/html"
 	"github.com/moovweb/gokogiri/xml"
 	"github.com/moovweb/gokogiri/xpath"
 	"io/ioutil"
@@ -13,20 +14,19 @@ import (
 
 type Block []Appointment
 
+// paths maps the different kind of appointments to xpaths that select their respective divs.
+// They must be formatted with practitioner before being valid xpath expressions.
 var paths = map[Status]string{
-	Available: "//div[substring(@id, string-length(@id) - string-length('%d') +1) = '%d']/a[text() = 'Reserve']/..",
-	Booked:    "//div[substring(@id, string-length(@id) - string-length('%d') +1) = '%d']/a[text() = 'Cancel']/..",
-	Taken:     "//div[substring(@id, string-length(@id) - string-length('%d') +1) = '%d' and not(a)]",
+	Available: "//div[substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d']/a[text() = 'Reserve']/..",
+	Booked:    "//div[substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d']/a[text() = 'Cancel']/..",
+	Taken:     "//div[substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d' and not(a)]",
 }
 
+// GetBlock GETs and parses practitioner's appointments on date
+// along with any information needed to book available appointments.
 func (s *Session) GetBlock(date time.Time, practitioner Practitioner) (Block, error) {
 
-	body, err := s.loadSchedule(date)
-	if err != nil {
-		return nil, err
-	}
-
-	root, err := gokogiri.ParseHtml(body)
+	root, err := s.loadBlock(date)
 	if err != nil {
 		return nil, err
 	}
@@ -35,14 +35,14 @@ func (s *Session) GetBlock(date time.Time, practitioner Practitioner) (Block, er
 
 	for status, path := range paths {
 
-		divs, err := root.Search(xpath.Compile(fmt.Sprintf(path, practitioner, practitioner)))
+		divs, err := root.Search(xpath.Compile(fmt.Sprintf(path, practitioner)))
 		if err != nil {
 			return nil, err
 		}
 
 		for _, div := range divs {
 
-			timestamp, blockIndex, err := parseBlockDiv(div)
+			timestamp, blockIndex, err := parseAppDiv(div)
 			if err != nil {
 				return nil, err
 			}
@@ -59,7 +59,8 @@ func (s *Session) GetBlock(date time.Time, practitioner Practitioner) (Block, er
 	return result, nil
 }
 
-func (s *Session) loadSchedule(date time.Time) ([]byte, error) {
+// GET and parse the schedule for the given date.
+func (s *Session) loadBlock(date time.Time) (*html.HtmlDocument, error) {
 
 	address := fmt.Sprintf("http://pocapoint.com/pp/boa/%s/25", date.Format("2006-01-02"))
 	resp, err := s.client.Get(address)
@@ -73,7 +74,12 @@ func (s *Session) loadSchedule(date time.Time) ([]byte, error) {
 		return nil, err
 	}
 
-	return body, nil
+	root, err := gokogiri.ParseHtml(body)
+	if err != nil {
+		return nil, err
+	}
+
+	return root, nil
 }
 
 var (
@@ -81,7 +87,8 @@ var (
 	blockIndexPattern *regexp.Regexp = regexp.MustCompile("makeApp\\(([0-9]+)")
 )
 
-func parseBlockDiv(div xml.Node) (timestamp int64, blockIndex string, err error) {
+// parseAppDiv extracts timestamp and blockindex from an appointment div
+func parseAppDiv(div xml.Node) (timestamp int64, blockIndex string, err error) {
 
 	idValues := idBlockPattern.FindStringSubmatch(div.Attr("id"))
 	timestamp, err = strconv.ParseInt(idValues[1], 10, 64)
