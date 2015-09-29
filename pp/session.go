@@ -28,7 +28,7 @@ func New(username, password string) (*Session, error) {
 	v.Set("p", password)
 	v.Set("go", "login")
 
-	resp, err := (*s).client.PostForm("http://pocapoint.com/pp/boa/", v)
+	resp, err := s.client.PostForm("http://pocapoint.com/pp/boa/", v)
 	if err != nil {
 		return nil, err
 	}
