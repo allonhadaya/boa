@@ -17,9 +17,9 @@ type Block []Appointment
 // paths maps the different kind of appointments to xpaths that select their respective divs.
 // They must be formatted with practitioner before being valid xpath expressions.
 var paths = map[Status]string{
-	Available: "//div[substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d']/a[text() = 'Reserve']/..",
-	Booked:    "//div[substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d']/a[text() = 'Cancel']/..",
-	Taken:     "//div[substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d' and not(a)]",
+	Available: "//div[starts-with(@id, 'app') and substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d']/a[text() = 'Reserve']/..",
+	Booked:    "//div[starts-with(@id, 'app') and substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d']/a[text() = 'Cancel']/..",
+	Taken:     "//div[starts-with(@id, 'app') and substring(@id, string-length(@id) - string-length('%[1]d') +1) = '%[1]d' and not(a)]",
 }
 
 // GetBlock GETs and parses practitioner's appointments on date
